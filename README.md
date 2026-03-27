@@ -1,7 +1,7 @@
 ✅ Day 1: RAG-Based Code Understanding
 Built vector database using ChromaDB
 Enabled semantic search over codebase
-Implemented query system for code retrieva
+Implemented query system for code retrieval
 
 ✅ Day 2: Multi-Agent System
 🧠 Planner Agent (task breakdown)
