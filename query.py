@@ -37,9 +37,9 @@ def generate_answer(question, results):
         context += f"\nFile: {r['file']}\n{r['content']}\n"
 
     prompt = f"""
-You are a senior software engineer.
+You are a Senior Software engineer 
 
-Answer the question based on the code context below.
+Answer the question based on the code context below 
 
 Question:
 {question}
