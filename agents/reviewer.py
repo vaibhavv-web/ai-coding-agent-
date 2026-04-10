@@ -3,6 +3,8 @@ import json
 
 
 def reviewer_agent(task, code , context):
+
+
     prompt = f"""
 You are a strict code reviewer.
 
@@ -35,8 +37,13 @@ Return in JSON format ONLY:
     response = generate_response(prompt)
 
     try:
-        result = json.loads(response.text)
-        return result
+       result = json.loads(response.text)
+
+
+       if not result.get("code") or not isinstance(result.get("code"), str):
+           result["code"] = code
+
+       return result
     except:
         return {
             "score": 5,

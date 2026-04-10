@@ -39,7 +39,7 @@ def generate_answer(question, results):
     prompt = f"""
 You are a Senior Software engineer 
 
-Answer the question based on the code context below 
+Answer the question based on the code context below  
 
 Question:
 {question}
@@ -50,7 +50,7 @@ Code Context:
 Instructions:
 - Explain clearly
 - Mention file names
-- Keep it concise but useful
+- Keep it concise but useful 
 """
 
     model = genai.GenerativeModel("gemini-2.5-flash")
@@ -58,3 +58,14 @@ Instructions:
     response = model.generate_content(prompt)
 
     return response.text
+
+def multiply(a, b):
+	if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
+		raise TypeError("Both inputs must be numbers")
+	return a * b
+
+def addition(num1, num2):
+	return num1 + num2
+
+result = addition(5, 10)
+print(result)

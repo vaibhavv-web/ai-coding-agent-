@@ -1,55 +1,46 @@
 import os
 
 def load_code_files(repo_path):
+    import os
+
     code_files = []
 
-    allowed_extensions = (
-        ".py", ".js", ".ts", ".java",
-        ".md", ".json", ".txt",
-        ".yaml", ".yml",
-        ".html", ".css", ".jsx", ".tsx"
-    )
-
-    for root, _, files in os.walk(repo_path):
+    for root, dirs, files in os.walk(repo_path):
         for file in files:
-            if file.endswith(allowed_extensions):
-
+            if file.endswith((
+    ".py", ".js", ".ts", ".jsx", ".tsx",
+    ".json", ".md", ".txt", ".yaml", ".yml"
+)):
                 full_path = os.path.join(root, file)
 
-                # ❌ skip junk folders
-                if any(x in full_path for x in [
-                    "__pycache__", ".git", "node_modules", ".venv"
-                ]):
-                    continue
-
                 try:
-                    with open(full_path, "r", encoding="utf-8", errors="ignore") as f:
-                        code = f.read()
+                    with open(full_path, "r", encoding="utf-8") as f:
+                        content = f.read()
 
-                        # skip empty files
-                        if len(code.strip()) < 20:
-                            continue
-
+                    if content.strip():  # skip empty files
                         code_files.append({
-                            "content": code,
-                            "path": full_path
+                            "path": full_path,
+                            "content": content
                         })
 
                 except Exception as e:
-                    print("Error reading:", full_path)
+                    print(f" Failed to read {full_path}: {e}")
 
     return code_files
-def chunk_code(file):
+
+def chunk_code(file, chunk_size=100, overlap=20):
     lines = file["content"].split("\n")
     chunks = []
 
-    chunk_size = 20   # 🔥 smaller chunks
-    overlap = 5
+    if not lines:
+        return []
 
-    for i in range(0, len(lines), chunk_size - overlap):
+    step = max(1, chunk_size - overlap)
+
+    for i in range(0, len(lines), step):
         chunk = "\n".join(lines[i:i + chunk_size])
 
-        if len(chunk.strip()) < 5:
+        if not chunk.strip():
             continue
 
         chunks.append({
@@ -58,3 +49,25 @@ def chunk_code(file):
         })
 
     return chunks
+
+def add(a, b):
+	return a + b
+
+def add(a, b):
+    if isinstance(a, float) or isinstance(b, float):
+        return float(a) + float(b)
+    else:
+        return a + b
+
+def is_prime(n):
+    if n < 2:
+        return False
+    if n == 2:
+        return True
+    if n % 2 == 0:
+        return False
+    max_divisor = int(n**0.5) + 1
+    for d in range(3, max_divisor, 2):
+        if n % d == 0:
+            return False
+    return True
