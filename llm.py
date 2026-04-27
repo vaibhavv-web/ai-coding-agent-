@@ -62,7 +62,7 @@ def generate_response(prompt, model=None, json_schema=None):
     fallback_models = [
         primary_model,
         os.getenv("GEMINI_FALLBACK_MODEL_1", "gemini-2.5-flash"),
-        os.getenv("GEMINI_FALLBACK_MODEL_2", "gemini-1.5-flash"),
+        os.getenv("GEMINI_FALLBACK_MODEL_2", "gemini-2.5-flash"),
     ]
     models_to_try = []
     for candidate in fallback_models:
