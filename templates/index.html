@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeAgent AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a0a0f;--bg2:#111118;--bg3:#1a1a24;
+    --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+    --accent:#7c6dfa;--accent2:#a78bfa;--teal:#2dd4bf;
+    --coral:#f87171;--amber:#fbbf24;--green:#34d399;
+    --text:#f1f0ff;--text2:#9492b0;--text3:#5c5a7a;
+    --font:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+    --radius:14px;--radius-sm:8px;
+  }
+  body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:linear-gradient(rgba(124,109,250,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(124,109,250,0.03) 1px,transparent 1px);
+    background-size:40px 40px}
+  .orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:0.15}
+  .orb1{width:600px;height:600px;background:var(--accent);top:-200px;left:-100px}
+  .orb2{width:400px;height:400px;background:var(--teal);bottom:-100px;right:-100px}
+  .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px}
+  nav{display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid var(--border)}
+  .logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;letter-spacing:-0.5px}
+  .logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--teal));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .nav-links{display:flex;gap:24px}
+  .nav-links a{color:var(--text2);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
+  .nav-links a:hover{color:var(--text)}
+  .srv-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3)}
+  .sdot{width:7px;height:7px;border-radius:50%;background:var(--text3)}
+  .sdot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+  .sdot.off{background:var(--coral)}
+  .hero{padding:60px 0 40px;text-align:center;animation:fadeUp .6s ease both}
+  .hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(124,109,250,.12);border:1px solid rgba(124,109,250,.25);color:var(--accent2);font-size:11px;font-weight:600;padding:6px 14px;border-radius:100px;margin-bottom:24px;letter-spacing:.5px;text-transform:uppercase}
+  .hero-badge::before{content:'';width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+  h1{font-size:clamp(38px,5vw,64px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:16px}
+  h1 span{background:linear-gradient(135deg,var(--accent2),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero-sub{font-size:17px;color:var(--text2);max-width:500px;margin:0 auto 32px;line-height:1.6;font-weight:400}
+  .card{background:var(--bg2);border:1px solid var(--border2);border-radius:20px;padding:28px;margin-bottom:20px;animation:fadeUp .6s .1s ease both}
+  .tabs{display:flex;gap:4px;background:var(--bg3);padding:4px;border-radius:var(--radius-sm);margin-bottom:20px}
+  .tab{flex:1;text-align:center;padding:8px 16px;font-size:13px;font-weight:500;color:var(--text3);border-radius:6px;cursor:pointer;transition:all .2s;user-select:none}
+  .tab.active{background:var(--bg2);color:var(--text);border:1px solid var(--border2)}
+  .tc{display:none}.tc.active{display:block}
+  .fl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;display:block}
+  .iw{position:relative}
+  .ii{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text3);pointer-events:none}
+  .ii.top{top:16px;transform:none}
+  input[type=text],input[type=password],textarea{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:var(--mono);font-size:13px;padding:11px 13px 11px 38px;outline:none;transition:border-color .2s}
+  input:focus,textarea:focus{border-color:rgba(124,109,250,.5)}
+  input::placeholder,textarea::placeholder{color:var(--text3)}
+  textarea{resize:vertical;min-height:80px;padding-top:12px;font-family:var(--font);font-size:14px}
+  .fs{margin-bottom:18px}
+  .btn{background:linear-gradient(135deg,var(--accent),#6d5ce7);color:#fff;border:none;border-radius:var(--radius-sm);font-family:var(--font);font-size:14px;font-weight:600;padding:11px 24px;cursor:pointer;white-space:nowrap;transition:opacity .2s,transform .15s;display:inline-flex;align-items:center;gap:8px}
+  .btn:hover{opacity:.88}.btn:active{transform:scale(.98)}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .btn2{background:var(--bg3);color:var(--text2);border:1px solid var(--border2);border-radius:var(--radius-sm);font-family:var(--font);font-size:13px;font-weight:500;padding:9px 18px;cursor:pointer;transition:all .2s}
+  .btn2:hover{color:var(--text);border-color:var(--border)}
+  .frow{display:flex;gap:10px;align-items:flex-end}.frow>:first-child{flex:1}
+  .terminal{background:#080810;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+  .t-hdr{display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--bg3)}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dr{background:#ff5f57}.dy{background:#febc2e}.dg{background:#28c840}
+  .t-title{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:6px;flex:1}
+  .t-st{font-family:var(--mono);font-size:11px;display:flex;align-items:center;gap:5px}
+  .t-body{padding:14px;font-family:var(--mono);font-size:12px;line-height:1.75;min-height:180px;max-height:300px;overflow-y:auto}
+  .t-body::-webkit-scrollbar{width:3px}
+  .t-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+  .ll{white-space:pre-wrap;word-break:break-all}
+  .li{color:var(--accent2)}.ls{color:var(--green)}.le{color:var(--coral)}.lw{color:var(--amber)}.lm{color:var(--text3)}.ld{color:#7c7a9a}
+  .phases{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;animation:fadeUp .6s .2s ease both}
+  .pc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;transition:all .3s}
+  .pc.active{border-color:rgba(124,109,250,.5);background:rgba(124,109,250,.07)}
+  .pc.done{border-color:rgba(45,212,191,.3);background:rgba(45,212,191,.05)}
+  .pi{font-size:20px;margin-bottom:6px;display:block}
+  .pn{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text3)}
+  .pc.active .pn{color:var(--accent2)}.pc.done .pn{color:var(--teal)}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;animation:fadeUp .6s .3s ease both}
+  .sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+  .sv{font-size:26px;font-weight:700;letter-spacing:-1px;margin-bottom:3px}
+  .sl{font-size:12px;color:var(--text2)}
+  .ps{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;margin-top:10px}
+  .pok{background:rgba(52,211,153,.1);border:1px solid rgba(52,211,153,.2);color:var(--green)}
+  .perr{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.2);color:var(--coral)}
+  .ppend{background:rgba(124,109,250,.1);border:1px solid rgba(124,109,250,.2);color:var(--accent2)}
+  .flist{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+  .fi{display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:var(--radius-sm);padding:9px 13px;font-family:var(--mono);font-size:12px;color:var(--text2)}
+  .fb{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;flex-shrink:0}
+  .fc{background:rgba(52,211,153,.15);color:var(--green)}
+  .fm{background:rgba(124,109,250,.15);color:var(--accent2)}
+  .fd{background:rgba(248,113,113,.15);color:var(--coral)}
+  .stitle{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+  .mp{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:14px}
+  .ph{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border)}
+  .pt{font-size:13px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:7px}
+  .pt::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--amber)}
+  .pb{padding:14px 18px}
+  .mi{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+  .mi:last-child{border-bottom:none}
+  .md{width:6px;height:6px;border-radius:50%;background:var(--accent);margin-top:5px;flex-shrink:0}
+  .mt{font-size:13px;color:var(--text2);line-height:1.5}
+  .mtime{font-size:11px;color:var(--text3);font-family:var(--mono)}
+  .empty{color:var(--text3);font-size:13px;text-align:center;padding:20px 0}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+  .divider{height:1px;background:var(--border);margin:24px 0}
+  footer{padding:24px 0;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;color:var(--text3);font-size:12px}
+  footer a{color:var(--text3);text-decoration:none}
+  footer a:hover{color:var(--text2)}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:640px){.phases{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.frow{flex-direction:column}h1{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="wrap">
+
+  <nav>
+    <div class="logo"><div class="logo-icon">⚡</div>CodeAgent AI</div>
+    <div class="nav-links"><a href="#">Docs</a><a href="#">History</a></div>
+    <div class="srv-status">
+      <div class="sdot" id="sdot"></div>
+      <span id="stext">Checking...</span>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge">AI-Powered Code Evolution</div>
+    <h1>Your Repo.<br><span>Upgraded by AI.</span></h1>
+    <p class="hero-sub">Clone any GitHub repo, describe what you want — the AI plans, codes, reviews and pushes automatically.</p>
+  </div>
+
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('run')">Run Agent</div>
+      <div class="tab" onclick="switchTab('output')">Output</div>
+      <div class="tab" onclick="switchTab('memory')">Memory</div>
+    </div>
+
+    <div class="tc active" id="tab-run">
+      <div class="fs">
+        <label class="fl">GitHub Repository URL</label>
+        <div class="iw"><span class="ii">⌥</span>
+          <input type="text" id="repo-url" placeholder="https://github.com/username/repo.git"/>
+        </div>
+      </div>
+      <div class="fs">
+        <label class="fl">GitHub Token <span style="color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0">(optional if set in .env)</span></label>
+        <div class="iw"><span class="ii">🔑</span>
+          <input type="password" id="token" placeholder="github_pat_xxxxxxxxxxxx"/>
+        </div>
+      </div>
+      <div class="fs">
+        <label class="fl">Task Description</label>
+        <div class="iw"><span class="ii top">✏</span>
+          <textarea id="task" placeholder="Describe what you want the AI to do...&#10;e.g. Add input validation to all functions in utils.py"></textarea>
+        </div>
+      </div>
+      <div class="frow">
+        <div></div>
+        <button class="btn2" onclick="loadMemory()">Load Memory</button>
+        <button class="btn" onclick="runAgent()" id="run-btn">
+          <span id="bspin" style="display:none"><div class="spin"></div></span>
+          <span id="bicon">▶</span>
+          <span id="btext">Run Agent</span>
+        </button>
+      </div>
+      <div id="run-err" style="margin-top:10px;font-size:13px;color:var(--coral);display:none"></div>
+    </div>
+
+    <div class="tc" id="tab-output">
+      <div class="stitle">Execution Log</div>
+      <div class="terminal">
+        <div class="t-hdr">
+          <div class="dot dr"></div><div class="dot dy"></div><div class="dot dg"></div>
+          <div class="t-title">agent.log — CodeAgent AI</div>
+          <div class="t-st" id="tst" style="color:var(--text3)">● idle</div>
+        </div>
+        <div class="t-body" id="tbody">
+          <div class="ll lm"># Waiting for task...</div>
+          <div class="ll lm"># Fill in the form and click Run Agent</div>
+        </div>
+      </div>
+      <div id="push-res"></div>
+      <div id="files-sec" style="display:none">
+        <div class="stitle" style="margin-top:18px">Files Changed</div>
+        <div class="flist" id="flist"></div>
+      </div>
+    </div>
+
+    <div class="tc" id="tab-memory">
+      <div class="mp">
+        <div class="ph"><div class="pt">Previous Tasks</div><span id="mcnt" style="font-size:11px;color:var(--text3)">0 entries</span></div>
+        <div class="pb" id="mtasks"><div class="empty">No memory yet. Run a task first.</div></div>
+      </div>
+      <div class="mp">
+        <div class="ph"><div class="pt">Files Edited</div></div>
+        <div class="pb" id="mfiles"><div class="empty">No files edited yet.</div></div>
+      </div>
+      <div class="mp">
+        <div class="ph"><div class="pt" style="">Past Errors</div></div>
+        <div class="pb" id="merrors"><div class="empty">No errors recorded.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phases">
+    <div class="pc" id="ph-clone"><span class="pi">📥</span><div class="pn">Clone</div></div>
+    <div class="pc" id="ph-plan"><span class="pi">🧠</span><div class="pn">Plan</div></div>
+    <div class="pc" id="ph-code"><span class="pi">💻</span><div class="pn">Code</div></div>
+    <div class="pc" id="ph-push"><span class="pi">🚀</span><div class="pn">Push</div></div>
+  </div>
+
+  <div class="stats">
+    <div class="sc"><div class="sv" id="st" style="color:var(--accent2)">0</div><div class="sl">Tasks Completed</div></div>
+    <div class="sc"><div class="sv" id="sf" style="color:var(--teal)">0</div><div class="sl">Files Modified</div></div>
+    <div class="sc"><div class="sv" id="sp" style="color:var(--green)">0</div><div class="sl">Successful Pushes</div></div>
+  </div>
+
+  <div class="divider"></div>
+  <footer>
+    <div>Built with Python · Flask · GitPython · LangChain · Groq LLM</div>
+    <div style="display:flex;gap:16px"><a href="#">GitHub</a><a href="#">Docs</a></div>
+  </footer>
+</div>
+
+<script>
+const API = window.location.origin;
+const SID = 'sid_' + Math.random().toString(36).slice(2,9);
+let totT=0,totF=0,totP=0;
+
+async function checkServer(){
+  try{
+    const r=await fetch(API+'/health',{signal:AbortSignal.timeout(3000)});
+    if(r.ok){document.getElementById('sdot').className='sdot on';document.getElementById('stext').textContent='Server online';}
+    else throw 0;
+  }catch{document.getElementById('sdot').className='sdot off';document.getElementById('stext').textContent='Server offline';}
+}
+checkServer();setInterval(checkServer,10000);
+
+function switchTab(n){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['run','output','memory'][i]===n));
+  document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+n).classList.add('active');
+}
+
+function setPhase(p){
+  const ps=['clone','plan','code','push'],idx=ps.indexOf(p);
+  ps.forEach((x,i)=>{const e=document.getElementById('ph-'+x);e.classList.remove('active','done');if(i<idx)e.classList.add('done');else if(i===idx)e.classList.add('active');});
+}
+function resetPhases(){['clone','plan','code','push'].forEach(p=>document.getElementById('ph-'+p).classList.remove('active','done'));}
+
+function log(msg,cls='ld'){
+  const b=document.getElementById('tbody');
+  const d=document.createElement('div');
+  d.className='ll '+cls;d.textContent=msg;
+  b.appendChild(d);b.scrollTop=b.scrollHeight;
+}
+function clearLog(){document.getElementById('tbody').innerHTML='';}
+function setTSt(t,c){const e=document.getElementById('tst');e.textContent='● '+t;e.style.color=c;}
+
+function addFile(name,action){
+  const l=document.getElementById('flist');
+  const d=document.createElement('div');d.className='fi';
+  const cls=action==='create'?'fc':action==='modify'?'fm':'fd';
+  d.innerHTML=`<span class="fb ${cls}">${action}</span><span>${name}</span>`;
+  l.appendChild(d);document.getElementById('files-sec').style.display='block';
+}
+
+function renderMemory(data){
+  const tasks=data.tasks_done||[],files=data.files_edited||[],errors=data.errors_encountered||[];
+  document.getElementById('mcnt').textContent=tasks.length+' entries';
+  document.getElementById('mtasks').innerHTML=tasks.length
+    ?tasks.slice(-10).reverse().map(t=>`<div class="mi"><div class="md"></div><div><div class="mt">${t.task}</div><div class="mtime">${t.time||''} · ${(t.files||[]).join(', ')}</div></div></div>`).join('')
+    :'<div class="empty">No tasks yet.</div>';
+  document.getElementById('mfiles').innerHTML=files.length
+    ?files.slice(-10).reverse().map(f=>`<div class="mi"><div class="md" style="background:var(--teal)"></div><div><div class="mt" style="font-family:var(--mono);font-size:12px">${f.file}</div><div class="mtime">${f.action} · ${f.time||''}</div></div></div>`).join('')
+    :'<div class="empty">No files yet.</div>';
+  document.getElementById('merrors').innerHTML=errors.length
+    ?errors.slice(-5).reverse().map(e=>`<div class="mi"><div class="md" style="background:var(--coral)"></div><div><div class="mt">${e.error}</div><div class="mtime">${e.time||''} · ${e.task}</div></div></div>`).join('')
+    :'<div class="empty">No errors recorded.</div>';
+}
+
+async function loadMemory(){
+  const url=document.getElementById('repo-url').value.trim();
+  if(!url){alert('Enter a repo URL first');return;}
+  try{
+    const r=await fetch(API+'/memory?repo_url='+encodeURIComponent(url));
+    renderMemory(await r.json());switchTab('memory');
+  }catch{alert('Could not load memory. Is server.py running?');}
+}
+
+async function runAgent(){
+  const repoUrl=document.getElementById('repo-url').value.trim();
+  const token=document.getElementById('token').value.trim();
+  const task=document.getElementById('task').value.trim();
+  const err=document.getElementById('run-err');
+  err.style.display='none';
+  if(!repoUrl){err.textContent='⚠ Enter a GitHub repo URL';err.style.display='block';return;}
+  if(!task){err.textContent='⚠ Describe the task';err.style.display='block';return;}
+  try{await fetch(API+'/health',{signal:AbortSignal.timeout(2000)});}
+  catch{err.textContent='❌ Server offline — run: python server.py';err.style.display='block';return;}
+
+  const btn=document.getElementById('run-btn');
+  btn.disabled=true;
+  document.getElementById('bspin').style.display='flex';
+  document.getElementById('bicon').style.display='none';
+  document.getElementById('btext').textContent='Running...';
+
+  switchTab('output');clearLog();
+  document.getElementById('flist').innerHTML='';
+  document.getElementById('files-sec').style.display='none';
+  document.getElementById('push-res').innerHTML='';
+  resetPhases();setTSt('running','var(--amber)');
+
+  const es=new EventSource(API+'/stream/'+SID);
+  const lvl={info:'li',success:'ls',error:'le',warning:'lw',muted:'lm'};
+
+  es.onmessage=e=>{
+    const m=JSON.parse(e.data);
+    if(m.type==='ping')return;
+    if(m.type==='log')log(m.message,lvl[m.level]||'ld');
+    if(m.type==='phase')setPhase(m.phase);
+    if(m.type==='file')addFile(m.filename,m.action);
+    if(m.type==='status'){
+      if(m.status==='success'){setTSt('done','var(--green)');document.getElementById('push-res').innerHTML=`<div class="ps pok">✅ ${m.message}</div>`;}
+      else{setTSt('error','var(--coral)');document.getElementById('push-res').innerHTML=`<div class="ps perr">❌ ${m.message}</div>`;}
+    }
+    if(m.type==='stats'){totT+=m.tasks;totF+=m.files;totP+=m.pushes;document.getElementById('st').textContent=totT;document.getElementById('sf').textContent=totF;document.getElementById('sp').textContent=totP;}
+    if(m.type==='memory')renderMemory(m.data);
+    if(m.type==='done'){
+      es.close();btn.disabled=false;
+      document.getElementById('bspin').style.display='none';
+      document.getElementById('bicon').style.display='inline';
+      document.getElementById('btext').textContent='Run Agent';
+    }
+  };
+  es.onerror=()=>{
+    es.close();btn.disabled=false;
+    document.getElementById('bspin').style.display='none';
+    document.getElementById('bicon').style.display='inline';
+    document.getElementById('btext').textContent='Run Agent';
+    setTSt('error','var(--coral)');
+    if(!document.getElementById('push-res').innerHTML){
+      document.getElementById('push-res').innerHTML=`<div class="ps perr">❌ Lost connection to the backend stream. Check the server terminal for the real error.</div>`;
+    }
+  };
+
+  const runRes = await fetch(API+'/run',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({repo_url:repoUrl,token,task,session_id:SID})});
+  if(!runRes.ok){
+    es.close();btn.disabled=false;
+    document.getElementById('bspin').style.display='none';
+    document.getElementById('bicon').style.display='inline';
+    document.getElementById('btext').textContent='Run Agent';
+    setTSt('error','var(--coral)');
+    let message='Backend rejected the request.';
+    try{
+      const data=await runRes.json();
+      if(data.error)message=data.error;
+    }catch{}
+    document.getElementById('push-res').innerHTML=`<div class="ps perr">❌ ${message}</div>`;
+  }
+}
+</script>
+</body>
+</html>
