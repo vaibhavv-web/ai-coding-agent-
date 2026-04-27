@@ -160,6 +160,12 @@
           <textarea id="task" placeholder="Describe what you want the AI to do...&#10;e.g. Add input validation to all functions in utils.py"></textarea>
         </div>
       </div>
+      <div class="fs">
+        <label class="fl" style="display:flex;align-items:center;gap:8px">
+          <input type="checkbox" id="auto-push" checked style="width:auto;margin:0"/>
+          <span style="text-transform:none;letter-spacing:0;font-weight:500;color:var(--text2)">Automatically push to GitHub after coding</span>
+        </label>
+      </div>
       <div class="frow">
         <div></div>
         <button class="btn2" onclick="loadMemory()">Load Memory</button>
@@ -298,6 +304,7 @@ async function runAgent(){
   const repoUrl=document.getElementById('repo-url').value.trim();
   const token=document.getElementById('token').value.trim();
   const task=document.getElementById('task').value.trim();
+  const autoPush=document.getElementById('auto-push').checked;
   const err=document.getElementById('run-err');
   err.style.display='none';
   if(!repoUrl){err.textContent='⚠ Enter a GitHub repo URL';err.style.display='block';return;}
@@ -351,7 +358,7 @@ async function runAgent(){
   };
 
   const runRes = await fetch(API+'/run',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({repo_url:repoUrl,token,task,session_id:SID})});
+    body:JSON.stringify({repo_url:repoUrl,token,task,session_id:SID,auto_push:autoPush})});
   if(!runRes.ok){
     es.close();btn.disabled=false;
     document.getElementById('bspin').style.display='none';

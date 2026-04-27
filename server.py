@@ -151,7 +151,7 @@ def is_safe_file(file_path):
     return True
 
 
-def run_agent_task(session_id, repo_url, token, task):
+def run_agent_task(session_id, repo_url, token, task, auto_push=True):
     q = get_queue(session_id)
     import time 
     time.sleep(1)
@@ -267,19 +267,25 @@ def run_agent_task(session_id, repo_url, token, task):
             stats["files"] += 1
 
         # PUSH PHASE
-        send_phase(q, "push")
-        send_log(q, "", "muted")
-        send_log(q, "🚀 Pushing changes to GitHub...", "info")
+        if auto_push:
+            send_phase(q, "push")
+            send_log(q, "", "muted")
+            send_log(q, "🚀 Pushing changes to GitHub...", "info")
 
-        push_result = push_changes(repo_path, token, f"AI Update: {task}")
-        send_log(q, push_result, "success" if "✅" in push_result else "error")
+            push_result = push_changes(repo_path, token, f"AI Update: {task}")
+            send_log(q, push_result, "success" if "✅" in push_result else "error")
 
-        if "✅" in push_result:
-            stats["pushes"] += 1
-            send_status(q, "success", push_result)
+            if "✅" in push_result:
+                stats["pushes"] += 1
+                send_status(q, "success", push_result)
+            else:
+                send_status(q, "error", push_result)
+                add_error(repo_url, push_result, task)
         else:
-            send_status(q, "error", push_result)
-            add_error(repo_url, push_result, task)
+            send_phase(q, "push")
+            send_log(q, "", "muted")
+            send_log(q, "⏭️ Skipping GitHub push (disabled by user)", "info")
+            send_status(q, "success", "Changes applied locally. Push skipped.")
 
         # Save memory
         add_task(repo_url, task, files_changed)
@@ -337,6 +343,7 @@ def run():
     token = data.get("token", "").strip() or os.getenv("GITHUB_TOKEN", "")
     task = data.get("task", "").strip()
     session_id = data.get("session_id", "default")
+    auto_push = data.get("auto_push", True)
 
     if not repo_url or not task:
         return jsonify({"error": "repo_url and task are required"}), 400
@@ -347,7 +354,7 @@ def run():
 
     t = threading.Thread(
         target=run_agent_task,
-        args=(session_id, repo_url, token, task)
+        args=(session_id, repo_url, token, task, auto_push)
     )
     t.daemon = True
     t.start()

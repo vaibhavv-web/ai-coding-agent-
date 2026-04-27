@@ -3,6 +3,28 @@ import json
 
 
 def coder_agent(task, plan, context):
+    response_schema = {
+        "type": "object",
+        "required": ["files"],
+        "properties": {
+            "files": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["file", "action", "code"],
+                    "properties": {
+                        "file": {"type": "string"},
+                        "action": {"type": "string", "enum": ["create", "modify"]},
+                        "target": {"type": ["string", "null"]},
+                        "code": {"type": "string"},
+                    },
+                    "additionalProperties": False,
+                },
+            }
+        },
+        "additionalProperties": False,
+    }
+
     prompt = f"""
 You are a strict backend coding agent.
 
@@ -12,7 +34,9 @@ CRITICAL RULES:
 - NO markdown
 - NO text outside JSON
 - NEVER include full file content unless required
-# Add this to the end of your prompt in coder.py
+- Always modify existing files if possible 
+- do not recreate files unnecessarily
+- Only change relevant parts 
 
 STRICT RULES FOR JSON OUTPUT:
 1. The entire response must be ONLY a JSON object - nothing else
@@ -46,7 +70,7 @@ RETURN FORMAT(STRICT JSON ONLY , NO EXTRA LINE OUTSIDE):
   "files": [
     {{
       "file": "utils.py",
-      "action": "create/modify/patch",
+      "action": "create/modify",
       "target": "def add",
       "code": "def add(a,b):\\n    return a+b"
     }}
@@ -63,10 +87,19 @@ CONTEXT:
 {context}
 """
 
-    response = generate_response(prompt)
+    response = generate_response(prompt, json_schema=response_schema)
 
     if not response or not isinstance(response, str):
         print(" coder_agent: Empty or invalid LLM response")
         return ""
 
-    return response.strip()
+    response = response.strip()
+
+    try:
+        parsed = json.loads(response)
+        if isinstance(parsed, dict) and isinstance(parsed.get("files"), list):
+            return parsed
+    except Exception:
+        pass
+
+    return response
