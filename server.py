@@ -236,7 +236,7 @@ def run_agent_task(session_id, repo_url, token, task, auto_push=True):
             new_code = file_obj.get("code")
 
             if not relative_path or not action or not new_code:
-                send_log(q, "⚠ Skipping invalid entry", "warning")
+                send_log(q, f"⚠ Skipping invalid entry: file={relative_path}, action={action}, code={'present' if new_code else 'missing'}", "warning")
                 continue
 
             if not is_safe_file(relative_path):
@@ -272,7 +272,7 @@ def run_agent_task(session_id, repo_url, token, task, auto_push=True):
             send_log(q, "", "muted")
             send_log(q, "🚀 Pushing changes to GitHub...", "info")
 
-            push_result = push_changes(repo_path, token, f"AI Update: {task}")
+            push_result = push_changes(repo_path, f"AI Update: {task}")
             send_log(q, push_result, "success" if "✅" in push_result else "error")
 
             if "✅" in push_result:
