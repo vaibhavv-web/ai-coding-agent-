@@ -58,10 +58,10 @@ def generate_response(prompt, model=None, json_schema=None):
         print("LLM ERROR:", message)
         return ""
 
-    primary_model = model or os.getenv("GEMINI_MODEL", "gemini-2.0-flash-exp")
+    primary_model = model or os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
     fallback_models = [
         primary_model,
-        os.getenv("GEMINI_FALLBACK_MODEL_1", "gemini-2.0-flash-exp"),
+        os.getenv("GEMINI_FALLBACK_MODEL_1", "gemini-2.5-flash"),
         os.getenv("GEMINI_FALLBACK_MODEL_2", "gemini-1.5-flash"),
     ]
     models_to_try = []
@@ -75,7 +75,7 @@ def generate_response(prompt, model=None, json_schema=None):
     if json_schema:
         config = {
             "response_mime_type": "application/json",
-            "response_schema": json_schema,
+            "response_json_schema": json_schema,
         }
 
     last_error = ""

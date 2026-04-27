@@ -1,7 +1,7 @@
 from llm import generate_response
 
 
-def planner_agent(task, context):
+def planner_agent(task, context, memory_summary=""):
     prompt = f"""
 You are a senior software architect.
 
@@ -12,6 +12,8 @@ TASK:
 
 CONTEXT:
 {context}
+
+{memory_summary}
 
 Return clear step-by-step plan.
 """

@@ -58,14 +58,3 @@ Instructions:
     response = model.generate_content(prompt)
 
     return response.text
-
-def multiply(a, b):
-	if not isinstance(a, (int, float)) or not isinstance(b, (int, float)):
-		raise TypeError("Both inputs must be numbers")
-	return a * b
-
-def addition(num1, num2):
-	return num1 + num2
-
-result = addition(5, 10)
-print(result)
